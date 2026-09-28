@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Odoo Accounting – Vendor Bill OCR demo</title>
+<style>
+:root{--bg:#fff;--bg2:#f8f9fa;--fg:#212529;--mu:#6c757d;--ln:#d8dadd;--pr:#714b67;--prh:#5d3d55;--tl:#017e84;--tlb:#e6f3f4;--ok:#28a745;--sh:0 8px 28px rgba(0,0,0,.18);--paper:#fff;--pf:#222;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1c1e21;--bg2:#25282c;--fg:#e6e8ea;--mu:#9aa1a8;--ln:#3a3e44;--tlb:#123c3f;--pr:#a4709a;--prh:#b884ad;--tl:#4fc3c9}}
+:root[data-theme="dark"]{--bg:#1c1e21;--bg2:#25282c;--fg:#e6e8ea;--mu:#9aa1a8;--ln:#3a3e44;--tlb:#123c3f;--pr:#a4709a;--prh:#b884ad;--tl:#4fc3c9}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--fg);font:14px/1.5 "Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+.nav{display:flex;align-items:center;gap:20px;padding:0 18px;height:48px;flex:none;border-bottom:1px solid var(--ln)}
+.logo{display:flex;align-items:center;gap:9px;font-size:18px}
+.logo i{width:26px;height:26px;border-radius:7px;background:linear-gradient(135deg,#8a5a7c,#714b67);color:#fff;display:grid;place-items:center;font-style:normal;font-weight:700}
+.nav a{cursor:pointer;color:var(--fg)}.nav a:hover{color:var(--pr)}
+.sp{flex:1}
+.av{width:30px;height:30px;border-radius:50%;background:#c9b6e4;color:#333;display:grid;place-items:center;font-weight:700;font-size:12px}
+.btn{border:1px solid var(--ln);background:var(--bg);border-radius:4px;padding:6px 13px}
+.btn:hover{background:var(--bg2)}
+.btn.p{background:var(--pr);border-color:var(--pr);color:#fff}.btn.p:hover{background:var(--prh)}
+.cp{display:flex;align-items:center;gap:12px;padding:8px 18px;border-bottom:1px solid var(--ln);flex:none}
+.bc{flex:1;min-width:0}.bc b{color:var(--tl);font-weight:500;cursor:pointer}
+main{flex:1;overflow:auto;min-height:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:14px;padding:18px}
+.card{border:1px solid var(--ln);border-radius:6px;background:var(--bg);padding:14px}
+.card h3{margin:0 0 10px;font-size:16px;font-weight:600}
+.card.drop{border:2px dashed var(--pr);background:var(--bg2)}
+.card.drop.hot{background:var(--tlb);border-color:var(--tl)}
+.kv{display:flex;justify-content:space-between;padding:4px 0;color:var(--mu)}.kv b{color:var(--fg)}
+.row{display:flex;gap:8px;margin-top:12px}
+.bar{display:flex;justify-content:space-between;align-items:center;padding:10px 18px;background:var(--bg2);gap:10px;flex-wrap:wrap}
+.st{display:flex}.st span{border:1px solid var(--ln);background:var(--bg);padding:5px 20px 5px 22px;margin-left:-6px;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,0 100%,12px 50%)}
+.st span:first-child{margin-left:0;clip-path:polygon(0 0,calc(100% - 12px) 0,100% 50%,calc(100% - 12px) 100%,0 100%)}
+.st span.on{background:var(--tlb);color:var(--tl);box-shadow:inset 0 0 0 1px var(--tl)}
+.split{display:flex;min-height:0}
+.form{flex:1;min-width:0;padding:16px 18px 30px}
+.prev{width:40%;min-width:340px;border-left:1px solid var(--ln);background:var(--bg2);padding:16px;flex:none}
+.badge{display:inline-block;font-size:12px;border-radius:10px;padding:1px 10px;background:var(--tlb);color:var(--tl);margin-bottom:8px}
+h1{font-weight:400;font-size:28px;margin:4px 0 14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:4px 28px}
+.f{display:flex;gap:12px;align-items:center;min-height:36px;border-bottom:1px solid transparent}
+.f b{width:104px;flex:none}
+.f span.v{flex:1;border-bottom:1px solid var(--ln);min-height:26px;padding:0 2px}
+.f span.v.n{animation:fl 1.2s}
+@keyframes fl{0%{background:var(--tlb);box-shadow:0 0 0 2px var(--tl)}100%{background:transparent;box-shadow:none}}
+.tabs{display:flex;margin-top:22px;border-bottom:1px solid var(--ln)}
+.tabs span{padding:9px 18px;color:var(--mu)}.tabs span.on{color:var(--fg);border:1px solid var(--ln);border-top:2px solid var(--pr);border-bottom:0;margin-bottom:-1px;background:var(--bg)}
+table{width:100%;border-collapse:collapse;margin-top:6px}
+th{text-align:left;font-weight:600;color:var(--mu);padding:7px 6px;border-bottom:1px solid var(--ln);font-size:13px}
+td{padding:8px 6px;border-bottom:1px solid var(--ln)}
+.r{text-align:right}
+tr.n td{animation:fl 1.2s}
+.tot{margin:14px 0 0 auto;width:260px}.tot div{display:flex;justify-content:space-between;padding:3px 0}.tot .g{border-top:1px solid var(--ln);font-weight:700;font-size:16px;margin-top:4px;padding-top:6px}
+.paper{background:var(--paper);color:var(--pf);border:1px solid var(--ln);box-shadow:0 2px 10px rgba(0,0,0,.12);padding:22px;font-size:12px;line-height:1.45}
+.paper h2{margin:0 0 2px;font-size:18px}
+.paper table td,.paper table th{border-bottom:1px solid #ddd;color:#222}
+.paper .m{color:#666}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.45);display:none;place-items:center;z-index:20}
+.ov.show{display:grid}
+.ov div{background:var(--bg);padding:26px 34px;border-radius:8px;text-align:center;box-shadow:var(--sh)}
+.spin{width:34px;height:34px;border:4px solid var(--ln);border-top-color:var(--pr);border-radius:50%;margin:0 auto 12px;animation:sp 1s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#2b2e33;color:#fff;padding:9px 18px;border-radius:6px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:30}
+.toast.show{opacity:1}
+@media (max-width:860px){.split{flex-direction:column}.prev{width:auto;min-width:0;border-left:0;border-top:1px solid var(--ln)}.grid{grid-template-columns:1fr}.nav a{display:none}}
+@media (prefers-reduced-motion:reduce){.spin,.f span.v.n,tr.n td{animation:none}}
+.intro{max-width:1200px;margin:0 auto;padding:24px 18px 18px}
+.intro h2{font-size:50px;line-height:1.15;font-weight:600;color:#714b67;margin:0 0 14px}
+.intro p{font-size:17px;line-height:1.65;color:#3d4148;margin:0;max-width:900px}
+.demo{display:flex;flex-direction:column;height:640px;max-width:1200px;margin:0 auto 24px;border:1px solid var(--ln);border-radius:8px;overflow:hidden}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .intro h2{color:#a4709a}:root:not([data-theme="light"]) .intro p{color:#c5c9ce}}
+:root[data-theme="dark"] .intro h2{color:#a4709a}:root[data-theme="dark"] .intro p{color:#c5c9ce}
+@media (max-width:600px){.intro h2{font-size:34px}}
+</style></head>
+<body>
+<div class="intro"><h2>Experience the Odoo Accounting app</h2>
+<p>Try it yourself in three simple steps. First, click the purple <b>Upload</b> button on the Vendor Bills card, or drag a bill onto the dashed box. Odoo then "reads" the bill in a few seconds and fills in the supplier, dates and items for you, so nothing needs to be typed by hand. Finally, compare the details on the left with the original bill on the right, and click <b>Confirm</b> to post it. This is a demonstration with a sample bill, so nothing you do here is saved.</p></div>
+<div class="demo"><div class="nav"><div class="logo"><i>▦</i>Accounting</div>
+<a data-h>Dashboard</a><a data-h>Customers</a><a data-h>Vendors</a><a data-h>Accounting</a><a data-h>Reporting</a><a data-h>Configuration</a>
+<span class="sp"></span><div class="av">MA</div></div>
+<div class="cp"><div class="bc" id="bc"></div></div>
+<main id="app"></main>
+</div>
+<div class="ov" id="ov"><div><div class="spin"></div><b>Digitizing document…</b><div style="color:var(--mu)">Reading vendor, dates, lines and taxes</div></div></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="file" hidden accept=".pdf,image/*">
+<script>
+const $=s=>document.querySelector(s);
+const L=[["Office Desk 160×80 cm",2,850],["Ergonomic Chair",4,420],["Delivery & Assembly",1,150]];
+const VAT=.05,fm=n=>"AED "+n.toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+let S={view:"dash",tv:0,vendor:"",ref:"",date:"",due:"",lines:0,posted:false,fresh:""};
+function toast(t){const e=$("#toast");e.textContent=t;e.classList.add("show");clearTimeout(toast.h);toast.h=setTimeout(()=>e.classList.remove("show"),1800)}
+function dash(){$("#bc").innerHTML="Dashboard";
+$("#app").innerHTML=`<div class="cards">
+<div class="card"><h3>Customer Invoices</h3><div class="kv">To validate<b>3</b></div><div class="kv">Unpaid<b>${fm(12480)}</b></div><div class="row"><button class="btn p" data-t>New</button></div></div>
+<div class="card"><h3>Vendor Bills</h3><div class="kv">To validate<b>${S.tv}</b></div><div class="kv">Bills to pay<b>${fm(S.posted?3706.5:5120)}</b></div><div class="row"><button class="btn p" id="up">Upload</button><button class="btn" data-t>New</button></div></div>
+<div class="card"><h3>Bank</h3><div class="kv">Balance<b>${fm(48210.4)}</b></div><div class="kv">To reconcile<b>7</b></div><div class="row"><button class="btn p" data-t>Reconcile</button></div></div>
+<div class="card drop" id="dz"><h3>Vendor Bills</h3><div style="color:var(--mu)">Drag &amp; drop a bill here, or click Upload. Odoo reads it and creates a draft bill for you to review.</div></div></div>`;
+$("#up").onclick=()=>$("#file").click();
+const z=$("#dz");z.ondragover=e=>{e.preventDefault();z.classList.add("hot")};z.ondragleave=()=>z.classList.remove("hot");z.ondrop=e=>{e.preventDefault();start()};z.onclick=()=>$("#file").click()}
+function bill(){$("#bc").innerHTML=`<b id="back">Vendor Bills</b> / ${S.ref||"New"}`;
+const v=(k,x)=>`<span class="v ${S.fresh==k?"n":""}">${x}</span>`;
+const rows=L.slice(0,S.lines).map((l,i)=>`<tr class="${S.fresh=="l"+i?"n":""}"><td>${l[0]}</td><td class="r">${l[1]}</td><td class="r">${fm(l[2])}</td><td class="r">5%</td><td class="r">${fm(l[1]*l[2])}</td></tr>`).join("");
+const sub=L.slice(0,S.lines).reduce((a,l)=>a+l[1]*l[2],0);
+$("#app").innerHTML=`<div class="bar"><div class="row" style="margin:0"><button class="btn p" id="cf" ${S.posted||S.lines<3?"disabled":""}>${S.posted?"Register Payment":"Confirm"}</button><button class="btn" data-t>Preview</button><button class="btn" id="rs">${S.posted?"Reset to Draft":"Cancel"}</button></div>
+<div class="st"><span class="${S.posted?"":"on"}">Draft</span><span class="${S.posted?"on":""}">Posted</span></div></div>
+<div class="split"><div class="form"><span class="badge">✨ Filled automatically from the uploaded document</span><h1>${S.posted?"BILL/2026/00017":"Draft Bill"}</h1>
+<div class="grid"><div><div class="f"><b>Vendor</b>${v("vendor",S.vendor)}</div><div class="f"><b>Bill Reference</b>${v("ref",S.ref)}</div></div>
+<div><div class="f"><b>Bill Date</b>${v("date",S.date)}</div><div class="f"><b>Due Date</b>${v("due",S.due)}</div><div class="f"><b>Journal</b><span class="v">Vendor Bills</span></div></div></div>
+<div class="tabs"><span class="on">Invoice Lines</span><span>Journal Items</span><span>Other Info</span></div>
+<table><tr><th>Label</th><th class="r">Quantity</th><th class="r">Price</th><th class="r">Taxes</th><th class="r">Amount</th></tr>${rows}</table>
+<div class="tot"><div>Untaxed Amount<span>${fm(sub)}</span></div><div>VAT 5%<span>${fm(sub*VAT)}</span></div><div class="g">Total<span>${fm(sub*(1+VAT))}</span></div></div></div>
+<div class="prev"><div class="paper"><h2>Al Noor Office Supplies LLC</h2><div class="m">Dubai, United Arab Emirates · TRN 100234567800003</div><h3 style="margin:14px 0 2px">TAX INVOICE</h3><div class="m">No. INV-2026-0457 · Date 09/25/2026 · Due 10/25/2026</div>
+<table style="margin-top:12px"><tr><th>Description</th><th class="r">Qty</th><th class="r">Unit</th><th class="r">Total</th></tr>${L.map(l=>`<tr><td>${l[0]}</td><td class="r">${l[1]}</td><td class="r">${l[2].toFixed(2)}</td><td class="r">${(l[1]*l[2]).toFixed(2)}</td></tr>`).join("")}</table>
+<div style="text-align:right;margin-top:10px">Subtotal 3,530.00<br>VAT 5% 176.50<br><b>Total AED 3,706.50</b></div></div></div></div>`;
+$("#back").onclick=dash;$("#cf").onclick=()=>{if(S.posted){toast("Payment window opens here (demo)");return}S.posted=true;S.tv=0;bill();toast("Bill posted")};
+$("#rs").onclick=()=>{if(S.posted){S.posted=false;S.tv=1;bill();toast("Reset to draft")}else{S.tv=0;S.view="dash";dash();toast("Bill cancelled")}}}
+function start(){$("#ov").classList.add("show");setTimeout(()=>{$("#ov").classList.remove("show");S={view:"bill",tv:1,vendor:"",ref:"",date:"",due:"",lines:0,posted:false,fresh:""};bill();
+const st=[()=>{S.vendor="Al Noor Office Supplies LLC";S.fresh="vendor"},()=>{S.ref="INV-2026-0457";S.fresh="ref"},()=>{S.date="09/25/2026";S.fresh="date"},()=>{S.due="10/25/2026";S.fresh="due"},()=>{S.lines=1;S.fresh="l0"},()=>{S.lines=2;S.fresh="l1"},()=>{S.lines=3;S.fresh="l2"}];
+st.forEach((f,i)=>setTimeout(()=>{f();bill()},500*(i+1)));setTimeout(()=>toast("Review the extracted data, then click Confirm"),500*8)},1600)}
+$("#file").onchange=e=>{if(e.target.files.length){e.target.value="";start()}};
+document.addEventListener("click",e=>{const t=e.target.closest("[data-t],[data-h]");if(t)toast("Not available in this demo")});
+dash();
+</script></body></html>
